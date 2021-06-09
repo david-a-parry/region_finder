@@ -21,7 +21,26 @@ class RegionFinder(object):
                     self.regions[gi.contig][i] = list()
                 self.regions[gi.contig][i].append(gi)
 
+    def fetch_by_interval(self, interval):
+        '''
+        Args:
+            interval:    region in format "chr1:1000-5000"
+
+        '''
+        contig, pos = interval.split(':')
+        start, end = pos.split('-')
+        return self.fetch(contig, int(start), int(end))
+
     def fetch(self, contig, start, end):
+        '''
+        Args:
+            contig: contig/chromosome name
+
+            start:  1-based start coordinate of region
+
+            end:    1-based end coordinate of region
+
+        '''
         if contig not in self.regions:
             return []
         idx_start = int(start / self.window_size) * self.window_size
