@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 import os
+import gzip
 from nose.tools import *
 from region_finder.bed_parser import BedParser, BedFormatError
 from region_finder.region_finder import RegionFinder
+from region_finder.region_iter import RegionIter
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 test_data_path = os.path.join(dir_path, "test_data")
+test_bed = os.path.join(test_data_path, "test_bed.gz")
 
 _regions_to_lines = {  # keys are queries, values are expected search results
     '20:8388366-8388685': [["20", 8388365, 8388885, "L1MC3", "3105", "+"]],
@@ -33,13 +36,30 @@ def test_non_integer_pos_error():
                   os.path.join(test_data_path, "non_integer_pos.bed"))
 
 
-def test_search_by_region():
-    bed = os.path.join(test_data_path, "test_bed.gz")
-    bed_intvls = BedParser(bed)
+def test_search_bed():
+    bed_intvls = BedParser(test_bed)
     bed_searcher = RegionFinder(bed_intvls)
     for query, answer in _regions_to_lines.items():
         regions = []
         for merged_regions in bed_searcher.fetch_by_interval(query):
+            regions.extend(merged_regions.regions)
+        assert_equal(regions, answer)
+
+
+def test_search_regions():
+    test_regions = []
+    with gzip.open(test_bed, 'rt') as fh:
+        for line in fh:
+            cols = line.split()
+            test_regions.append("{}:{}-{}".format(cols[0],
+                                                  int(cols[1]) + 1,
+                                                  int(cols[2])))
+    region_iter = RegionIter(test_regions)
+    reg_searcher = RegionFinder(region_iter)
+    for query, answer in _regions_to_lines.items():
+        answer = [x[:3] for x in answer]
+        regions = []
+        for merged_regions in reg_searcher.fetch_by_interval(query):
             regions.extend(merged_regions.regions)
         assert_equal(regions, answer)
 
