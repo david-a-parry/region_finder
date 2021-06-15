@@ -20,6 +20,11 @@ def test_create_genomic_interval():
     assert_equal(gi.regions[0], bed_rows[0])
 
 
+def test_lengths():
+    for i in range(len(gis)):
+        assert (len(gis[i]) == bed_rows[i][2] - bed_rows[i][1])
+
+
 def test_interval_comparisons():
     assert gis[0] < gis[1]
     assert gis[1] > gis[0]

@@ -54,6 +54,9 @@ class GenomicInterval(object):
         return (self.contig > other.contig
                 or (self.contig == other.contig and self.start >= other.start))
 
+    def __len__(self):
+        return self.end - self.start
+
     def overlaps(self, other):
         if self.contig != other.contig:
             return False
