@@ -1,7 +1,6 @@
 import warnings
 import bisect
 import numpy as np
-import warnings
 from random import randint
 from .genomic_interval import GenomicInterval
 
