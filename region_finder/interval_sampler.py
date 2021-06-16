@@ -102,10 +102,10 @@ class IntervalSampler(object):
                     "(or infinite) runtime.")
                 allow_overlaps = True
         sample = list()
-        for l in rand_lengths:
+        for ln in rand_lengths:
             if allow_overlaps:
-                rand_intvl = self.random_interval(l)
+                rand_intvl = self.random_interval(ln)
             else:
-                rand_intvl = self.random_non_overlapping_interval(l, sample)
+                rand_intvl = self.random_non_overlapping_interval(ln, sample)
             bisect.insort(sample, rand_intvl)
         return sample
