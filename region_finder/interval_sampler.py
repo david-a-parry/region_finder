@@ -43,7 +43,8 @@ class IntervalSampler(object):
         offset = 0
         if j > 0:
             offset = i - self.idx[j - 1]
-        start = self.intervals[j].start + offset
+        start = min(self.intervals[j].start + offset,
+                    self.intervals[j].end - length)
         end = min(start + length, self.intervals[j].end)
         return GenomicInterval([self.intervals[j].contig, start, end])
 
