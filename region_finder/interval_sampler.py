@@ -37,13 +37,13 @@ class IntervalSampler(object):
 
     def random_position(self):
         ''' Return random 1-based position within intervals '''
-        i = randint(0, self.length)
+        i = randint(0, self.length - 1)
         return self.position_by_index(i)
 
     def random_interval(self, length):
         ''' Return random interval of given length within intervals. '''
-        i = randint(0, self.length)
-        j = self.idx.searchsorted(i)
+        i = randint(0, self.length - 1)
+        j = self.idx.searchsorted(i, side='right')
         offset = 0
         if j > 0:
             offset = i - self.idx[j - 1]
