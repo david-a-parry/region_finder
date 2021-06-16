@@ -20,25 +20,28 @@ class IntervalSampler(object):
         return self.length
 
     def interval_by_index(self, i):
-        if i > self.length:
+        if i >= self.length:
             return None
-        x = self.idx.searchsorted(i)
+        x = self.idx.searchsorted(i, side='right')
         return self.intervals[x]
 
     def position_by_index(self, i):
-        if i > self.length:
+        ''' Return 1-based position by index '''
+        if i >= self.length:
             return (None, None)
-        j = self.idx.searchsorted(i)
+        j = self.idx.searchsorted(i, side='right')
         offset = i
         if j > 0:
             offset = i - self.idx[j - 1]
-        return (self.intervals[j].contig, self.intervals[j].start + offset)
+        return (self.intervals[j].contig, self.intervals[j].start + offset + 1)
 
     def random_position(self):
+        ''' Return random 1-based position within intervals '''
         i = randint(0, self.length)
         return self.position_by_index(i)
 
     def random_interval(self, length):
+        ''' Return random interval of given length within intervals. '''
         i = randint(0, self.length)
         j = self.idx.searchsorted(i)
         offset = 0
@@ -67,7 +70,7 @@ class IntervalSampler(object):
         if not mask:
             return gi
         i = bisect.bisect(mask, gi)
-        for j in range(i - 1, min(i, len(mask))):
+        for j in range(i - 1, min(i + 1, len(mask))):
             if gi.overlaps(mask[j]):
                 return self.random_non_overlapping_interval(length, mask)
         return gi
@@ -94,6 +97,7 @@ class IntervalSampler(object):
         '''
         rand_flts = np.random.default_rng().normal(mean_length, sd, n)
         rand_lengths = np.round(rand_flts)
+        rand_lengths[rand_lengths < 1] = 1  # cannot have a 0-length interval
         if not allow_overlaps:
             if self.length < np.sum(rand_lengths) / 2:
                 warnings.warn(
