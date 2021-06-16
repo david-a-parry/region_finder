@@ -11,7 +11,8 @@ class IntervalSampler(object):
     facilitate random sampling corrected for region lengths.
     '''
     def __init__(self, interval_iter):
-        self.idx = np.cumsum([len(x) for x in interval_iter.intervals])
+        self.idx = np.cumsum([len(x) for x in interval_iter.intervals],
+                             dtype=np.int64)
         self.length = self.idx[-1]
         self.intervals = interval_iter.intervals
 
