@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import os
 import numpy as np
-from nose.tools import *
 from region_finder.interval_sampler import IntervalSampler
 from region_finder.interval_iter import IntervalIter
 from region_finder.genomic_interval import GenomicInterval
@@ -39,12 +37,12 @@ intvl_sampler = IntervalSampler(intvl_iter)
 
 def test_position_by_index():
     for idx, val in idx2pos.items():
-        assert_equal(intvl_sampler.position_by_index(idx), val)
+        assert intvl_sampler.position_by_index(idx) == val
 
 
 def test_interval_by_index():
     for idx, val in idx2interval.items():
-        assert_equal(intvl_sampler.interval_by_index(idx), val)
+        assert intvl_sampler.interval_by_index(idx) == val
 
 
 def _confirm_sampled_interval_locations(intervals):
@@ -52,8 +50,8 @@ def _confirm_sampled_interval_locations(intervals):
         for ti in test_intervals:
             if gi.overlaps(ti):
                 try:
-                    assert (gi.start >= ti.start)
-                    assert (gi.end <= ti.end)
+                    assert gi.start >= ti.start
+                    assert gi.end <= ti.end
                 except AssertionError:
                     raise AssertionError(
                         "Sampled Interval {} does not overlap ".format(gi) +
@@ -80,7 +78,7 @@ def test_random_sampling_no_overlap():
     assert 1 <= lengths.std().round() <= 3
     for i in range(len(smpl)):
         for j in range(i + 1, len(smpl)):
-            assert_equal(smpl[i].overlaps(smpl[j]), False)
+            assert smpl[i].overlaps(smpl[j]) == False
     _confirm_sampled_interval_locations(smpl)
 
 
@@ -93,5 +91,5 @@ def test_random_sampling_no_overlap_long():
 
 
 if __name__ == '__main__':
-    import nose
-    nose.run(defaultTest=__name__)
+    import nose2
+    nose2.main()

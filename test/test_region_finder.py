@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import gzip
-from nose.tools import *
+from nose2.tools.such import helper
 from region_finder.bed_parser import BedParser, BedFormatError
 from region_finder.region_finder import RegionFinder
 from region_finder.region_iter import RegionIter
@@ -27,13 +27,13 @@ _regions_to_lines = {  # keys are queries, values are expected search results
 
 
 def test_not_enough_fields_error():
-    assert_raises(BedFormatError, BedParser,
-                  os.path.join(test_data_path, "not_enough_fields.bed"))
+    helper.assertRaises(BedFormatError, BedParser,
+                        os.path.join(test_data_path, "not_enough_fields.bed"))
 
 
 def test_non_integer_pos_error():
-    assert_raises(BedFormatError, BedParser,
-                  os.path.join(test_data_path, "non_integer_pos.bed"))
+    helper.assertRaises(BedFormatError, BedParser,
+                        os.path.join(test_data_path, "non_integer_pos.bed"))
 
 
 def test_search_bed():
@@ -43,7 +43,7 @@ def test_search_bed():
         regions = []
         for merged_regions in bed_searcher.fetch_by_interval(query):
             regions.extend(merged_regions.regions)
-        assert_equal(regions, answer)
+        helper.assertEqual(regions, answer)
 
 
 def test_search_regions():
@@ -61,9 +61,9 @@ def test_search_regions():
         regions = []
         for merged_regions in reg_searcher.fetch_by_interval(query):
             regions.extend(merged_regions.regions)
-        assert_equal(regions, answer)
+        helper.assertEqual(regions, answer)
 
 
 if __name__ == '__main__':
-    import nose
-    nose.run(defaultTest=__name__)
+    import nose2
+    nose2.main()
