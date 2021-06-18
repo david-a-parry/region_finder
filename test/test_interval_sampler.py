@@ -47,28 +47,49 @@ def test_interval_by_index():
         assert_equal(intvl_sampler.interval_by_index(idx), val)
 
 
+def _confirm_sampled_interval_locations(intervals):
+    for gi in intervals:
+        for ti in test_intervals:
+            if gi.overlaps(ti):
+                try:
+                    assert (gi.start >= ti.start)
+                    assert (gi.end <= ti.end)
+                except AssertionError:
+                    raise AssertionError(
+                        "Sampled Interval {} does not overlap ".format(gi) +
+                        "test intervals")
+                return
+        raise AssertionError(
+            "Sampled region {} does not overlap test intervals".format(gi))
+
+
 def test_random_sampling_with_overlap():
     smpl = intvl_sampler.random_sample(100, 5, 2, allow_overlaps=True)
     lengths = np.array([len(x) for x in smpl])
-    assert_equal(lengths.mean().round(), 5)
-    assert_equal(lengths.std().round(), 2)
+    # comparisons have to be a bit fuzzy due to potential corrections of
+    # intervals to ensure within test interval range
+    assert 4 <= lengths.mean().round() <= 6
+    assert 1 <= lengths.std().round() <= 3
+    _confirm_sampled_interval_locations(smpl)
 
 
 def test_random_sampling_no_overlap():
     smpl = intvl_sampler.random_sample(100, 5, 2, allow_overlaps=False)
     lengths = np.array([len(x) for x in smpl])
-    assert_equal(lengths.mean().round(), 5)
-    assert_equal(lengths.std().round(), 2)
+    assert 4 <= lengths.mean().round() <= 6
+    assert 1 <= lengths.std().round() <= 3
     for i in range(len(smpl)):
         for j in range(i + 1, len(smpl)):
             assert_equal(smpl[i].overlaps(smpl[j]), False)
+    _confirm_sampled_interval_locations(smpl)
 
 
 def test_random_sampling_no_overlap_long():
     smpl = intvl_sampler.random_sample(1000, 100, 5, allow_overlaps=True)
     lengths = np.array([len(x) for x in smpl])
-    assert_equal(lengths.mean().round(), 100)
-    assert_equal(lengths.std().round(), 5)
+    assert 99 <= lengths.mean().round() <= 101
+    assert 4 <= lengths.std().round() <= 6
+    _confirm_sampled_interval_locations(smpl)
 
 
 if __name__ == '__main__':
