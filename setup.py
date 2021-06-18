@@ -24,7 +24,8 @@ setup(
     'https://github.com/david-a-parry/region_finder/archive/{}.tar.gz'.format(
         verstr),
     license='MIT',
-    install_requires=['natsort'],
+    install_requires=['natsort', 'numpy'],
+    test_requires=['nose2'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
