@@ -1,6 +1,6 @@
 # region_finder
 
-A python library for parsing and searching genomic intervals in memory.
+A python library for parsing and searching genomic intervals in memory. Also provides a means for randomly sampling intervals.
 
 ## Installation
 
@@ -16,6 +16,8 @@ Or you can clone this repository and install:
 
 
 ## Synopsis
+
+### Searching Intervals
 
 Parse a BED file and read into memory. Then create a region finder object to search intervals.
 ~~~
@@ -77,4 +79,58 @@ Or you can use the IntervalIter class to process your intervals - an iterable of
 >>> intervals = [['20', 674883, 674916, 'MLT1E3', '759', '-'], ['20', 674915, 675056, 'MLT1E3', '451', '-'], ['20', 674915, 675056, 'Foo', '999', '+']]
 >>> intvl_iter = IntervalIter(intervals)
 >>> reg_finder = RegionFinder(intvl_iter)
+~~~
+
+### Randomly Sampling Intervals
+
+This module also provides a means for randomly sampling from a set of intervals. Regions are merged and a linear index is created in memory so that any given position is equally likely to be sampled irrespective of whether positions lie within long or short regions or whether positions occur multiple times in overlapping intervals.
+
+As for region searching, the first step is to read your intervals into a BedParser/RegionIter/IntervalIter object where overlapping regions will be merged for sampling:
+~~~
+>>> from region_finder.bed_parser import BedParser
+>>> from region_finder.interval_sampler import IntervalSampler
+>>> bed_intervals = BedParser("test/test_data/test_bed.gz")
+>>> sampler = IntervalSampler(bed_intervals)
+~~~
+
+Random (1-based) positions can be sampled:
+~~~
+>>> sampler.random_position()
+('22', 34976445)
+~~~
+
+Random intervals of a given length can also be sampled:
+~~~
+>>> print(sampler.random_interval(10))
+20:10286526-10286535
+~~~
+
+You can also ask for a number of randomly sampled intervals using the `random_sample` method. You must provide the mean length and standard deviation of length of regions to sample. The mean and standard deviation will be used to generate a random set of lengths drawn from a normal distribution to return:
+~~~
+>>> rnd_regs = sampler.random_sample(n=1000, mean_length=100, sd=50, allow_overlaps=False)
+~~~
+
+The regions returned will be sorted in coordinate order (this facilitates ensuring no overlaps when overlaps are not desired).
+
+Note that in some instances the lengths may deviate slightly from the expected distribution as intervals are truncated or shifted to ensure they lie fully within the original set of intervals. In the above instance where many of the original regions are shorter than 100 bp our mean is lower than expected:
+
+~~~
+>>> import numpy as np
+>>> reg_lengths = np.array([len(x) for x in rnd_regs])
+>>> reg_lengths.mean()
+95.714
+>>> reg_lengths.std()
+49.200937023597426
+~~~
+
+This is unlikely to be an issue if using a list of much longer regions, but something to be aware of when your requested lengths may exceed the lengths of your original regions.
+
+To retrieve a set of intervals of uniform length, simply set the standard deviation to 0 (caveat from above applies):
+~~~
+>>> rnd_regs = sampler.random_sample(n=1000, mean_length=10, sd=0, allow_overlaps=False)
+>>> reg_lengths = np.array([len(x) for x in rnd_regs])
+>>> reg_lengths.mean()
+10.0
+>>> reg_lengths.std()
+0.0
 ~~~
