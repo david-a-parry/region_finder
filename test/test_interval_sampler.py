@@ -90,6 +90,15 @@ def test_random_sampling_no_overlap_long():
     _confirm_sampled_interval_locations(smpl)
 
 
+def test_random_sampling_given_lengths():
+    rng = np.random.default_rng()
+    rints = rng.integers(low=0, high=20, size=10)
+    regs = intvl_sampler.random_sample_given_lengths(rints,
+                                                     guarantee_lengths=True)
+    lengths = np.sort([len(x) for x in regs])
+    assert (lengths == np.sort(rints)).all()
+
+
 if __name__ == '__main__':
     import nose2
     nose2.main()
