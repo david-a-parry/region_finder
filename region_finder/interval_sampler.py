@@ -47,6 +47,8 @@ class IntervalSampler(object):
         offset = 0
         if j > 0:
             offset = i - self.idx[j - 1]
+        else:
+            offset = i
         start = min(self.intervals[j].start + offset,
                     self.intervals[j].end - length)
         start = max(start, self.intervals[j].start)
@@ -111,6 +113,8 @@ class IntervalSampler(object):
                     regions you could end up with infinite recursion.
         '''
         lengths = np.array(region_lengths)
+        if np.any(lengths < 1):
+            raise ValueError("region_lengths must all be greater than zero")
         if not allow_overlaps:
             if self.length < np.sum(lengths) / 2:
                 warnings.warn(

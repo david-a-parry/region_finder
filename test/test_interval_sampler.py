@@ -92,11 +92,26 @@ def test_random_sampling_no_overlap_long():
 
 def test_random_sampling_given_lengths():
     rng = np.random.default_rng()
-    rints = rng.integers(low=0, high=20, size=10)
+    rints = rng.integers(low=1, high=10, size=100)
     regs = intvl_sampler.random_sample_given_lengths(rints,
                                                      guarantee_lengths=True)
     lengths = np.sort([len(x) for x in regs])
     assert (lengths == np.sort(rints)).all()
+
+
+def test_sampling_from_single_region():
+    single_iter = IntervalIter([["chr1", 0, 1000]])
+    single_sampler = IntervalSampler(single_iter)
+    regs = single_sampler.random_sample(100, 5, 2, allow_overlaps=False)
+    lengths = np.sort([len(x) for x in regs])
+    assert 4 <= lengths.mean().round() <= 6
+    assert 1 <= lengths.std().round() <= 3
+
+
+def test_raise_error_on_zero_length():
+    from nose2.tools.such import helper
+    helper.assertRaises(ValueError, intvl_sampler.random_sample_given_lengths,
+                        [1, 0, 2, 3, 4])
 
 
 if __name__ == '__main__':
