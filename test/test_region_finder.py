@@ -9,6 +9,8 @@ from region_finder.region_iter import RegionIter
 dir_path = os.path.dirname(os.path.realpath(__file__))
 test_data_path = os.path.join(dir_path, "test_data")
 test_bed = os.path.join(test_data_path, "test_bed.gz")
+bed_intvls = BedParser(test_bed)
+bed_searcher = RegionFinder(bed_intvls)
 
 _regions_to_lines = {  # keys are queries, values are expected search results
     '20:8388366-8388685': [["20", 8388365, 8388885, "L1MC3", "3105", "+"]],
@@ -37,8 +39,6 @@ def test_non_integer_pos_error():
 
 
 def test_search_bed():
-    bed_intvls = BedParser(test_bed)
-    bed_searcher = RegionFinder(bed_intvls)
     for query, answer in _regions_to_lines.items():
         regions = []
         for merged_regions in bed_searcher.fetch_by_interval(query):
@@ -62,6 +62,21 @@ def test_search_regions():
         for merged_regions in reg_searcher.fetch_by_interval(query):
             regions.extend(merged_regions.regions)
         helper.assertEqual(regions, answer)
+
+
+def test_no_duplicate_regions():
+    got_one = False
+    for k in bed_searcher.regions['20'].keys():
+        # ensure regions overlapping windows
+        regions = bed_searcher.fetch('20', k - 1, k + 1)
+        if not regions:
+            continue
+        got_one = True
+        prev_region = regions[0]
+        for reg in regions[1:]:
+            assert reg != prev_region
+            prev_region = reg
+    assert got_one
 
 
 if __name__ == '__main__':
