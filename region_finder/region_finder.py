@@ -1,6 +1,4 @@
-import operator
 from collections import defaultdict
-from natsort import natsorted
 
 
 class RegionFinder(object):
@@ -54,9 +52,7 @@ class RegionFinder(object):
                 candidates.extend(self.regions[contig][i])
                 n_windows += 1
         if n_windows > 1:
-            candidates = natsorted(candidates,
-                                   key=operator.attrgetter("contig", "start",
-                                                           "end"))
+            candidates = sorted(candidates)
         return self._binsearch_regions(candidates, start, end)
 
     def _binsearch_regions(self, regions, start, end):
