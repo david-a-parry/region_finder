@@ -48,12 +48,15 @@ class RegionFinder(object):
         idx_start = int(start / self.window_size) * self.window_size
         idx_end = int(end / self.window_size) * self.window_size
         candidates = []
+        n_windows = 0
         for i in range(idx_start, idx_end + 1, self.window_size):
             if i in self.regions[contig]:
                 candidates.extend(self.regions[contig][i])
-        candidates = natsorted(candidates,
-                               key=operator.attrgetter("contig", "start",
-                                                       "end"))
+                n_windows += 1
+        if n_windows > 1:
+            candidates = natsorted(candidates,
+                                   key=operator.attrgetter("contig", "start",
+                                                           "end"))
         return self._binsearch_regions(candidates, start, end)
 
     def _binsearch_regions(self, regions, start, end):
