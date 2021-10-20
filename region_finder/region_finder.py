@@ -10,7 +10,23 @@ class RegionFinder(object):
 
     __slots__ = ['regions', 'window_size']
 
-    def __init__(self, interval_iter, window_size=100000):
+    def __init__(self, interval_iter, window_size=100_000):
+        '''
+        Args:
+
+            interval_iter:
+                An iterable of sorted GenomicInterval objects. Normally
+                this will be an IntervalIter or BedParser object. Any
+                other iterable of GenomicIntervals can be used but the
+                intervals MUST already be sorted in coordinate order.
+
+            window_size:
+                Length of windows to use when creating index of regions.
+                Intervals will be partitioned into binned lists spanning
+                this length. Fetch actions identify which bin(s) overlap
+                the search coordinates and then perform binary searches
+                on those bins.
+        '''
         self.regions = defaultdict(dict)
         self.window_size = window_size
         for gi in interval_iter:  # these should already be coordinate sorted
