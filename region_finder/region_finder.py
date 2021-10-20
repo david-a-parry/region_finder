@@ -52,7 +52,7 @@ class RegionFinder(object):
                 candidates.extend(self.regions[contig][i])
                 n_windows += 1
         if n_windows > 1:
-            candidates = sorted(candidates)
+            candidates.sort()
         return self._binsearch_regions(candidates, start, end)
 
     def _binsearch_regions(self, regions, start, end):
