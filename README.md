@@ -82,7 +82,11 @@ You can pass a list of intervals in standard "\<chr\>:\<start\>-\<end\>" format 
 Or you can use the IntervalIter class to process your intervals - an iterable of lists should be provided where each list simply requires that the first three columns correspond to the contig, start (0-based) and end (1-based) of your regions:
 
 ```
->>> intervals = [['20', 674883, 674916, 'MLT1E3', '759', '-'], ['20', 674915, 675056, 'MLT1E3', '451', '-'], ['20', 674915, 675056, 'Foo', '999', '+']]
+>>> from region_finder.region_finder import RegionFinder
+>>> from region_finder.interval_iter import IntervalIter
+>>> intervals = [['20', 674883, 674916, 'MLT1E3', '759', '-'], 
+                 ['20', 674915, 675056, 'MLT1E3', '451', '-'],
+                 ['20', 674915, 675056, 'Foo', '999', '+']]
 >>> intvl_iter = IntervalIter(intervals)
 >>> reg_finder = RegionFinder(intvl_iter)
 ```
