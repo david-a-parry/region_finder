@@ -69,6 +69,7 @@ For more information about Genomic Interval objects:
 You can pass a list of intervals in standard "\<chr\>:\<start\>-\<end\>" format instead of a BED file using the RegionIter class:
 
 ```
+>>> from region_finder.region_iter import RegionIter
 >>> input_regions = ['20:674383-674693', '20:674694-674883', '20:674884-675056']
 >>> reg_iter = RegionIter(input_regions)
 >>> reg_searcher = RegionFinder(reg_iter)
